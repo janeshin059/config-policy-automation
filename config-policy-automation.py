@@ -6,8 +6,8 @@ import csv
 # --- Configuration ---
 PRISMA_CLOUD_API_URL = os.environ.get("PRISMA_CLOUD_API_URL", "https://api.sg.prismacloud.io") # Your Prisma Cloud API URL
 # SECURITY NOTE: In a real environment, load keys from environment variables or a secure vault.
-ACCESS_KEY = os.environ.get("PRISMA_CLOUD_ACCESS_KEY", "653cb16e-a95c-44db-8942-377272850170") # Your Prisma Cloud Access Key
-SECRET_KEY = os.environ.get("PRISMA_CLOUD_SECRET_KEY", "KZIPjuJg1AuctgDlKGay4DSMaBg=") # Your Prisma Cloud Secret Key
+ACCESS_KEY = os.environ.get("PRISMA_CLOUD_ACCESS_KEY", "") # Your Prisma Cloud Access Key
+SECRET_KEY = os.environ.get("PRISMA_CLOUD_SECRET_KEY", "") # Your Prisma Cloud Secret Key
 
 # Read configuration from CSV file using DictReader
 csv_file_path = 'policy_20250718 - Sheet1.csv'
