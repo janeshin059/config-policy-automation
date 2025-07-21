@@ -122,16 +122,9 @@ def process_policy_from_csv(jwt_token, policy_data):
     policy_labels = [label.strip() for label in labels_str.split(',') if label.strip()]
 
     policy_cloud_type = policy_data['POLICY_CLOUD_TYPE']
-    # saved_search_name = policy_data.get('SAVED_SEARCH_NAME', policy_name + " Query")
-    # saved_search_description = policy_data.get('SAVED_SEARCH_DESCRIPTION', policy_description)
 
     print(f"\n--- 정책 처리 중: '{policy_name}' ---")
 
-    # 1. IAM Permission Search를 실행하고 Saved Search ID를 획득 (새 Saved Search가 생성됨)
-    # search_id = create_and_get_saved_search_id_iam(jwt_token, rql_query, saved_search_name, saved_search_description, policy_cloud_type)
-    # if not search_id:
-    #     print(f"  Search ID 획득 실패로 정책 '{policy_name}' 건너뜁니다.")
-    #     return False
     search_id = create_and_get_saved_search_id_iam(jwt_token, rql_query, policy_name, policy_description, policy_cloud_type)
     if not search_id:
         print(f"  Search ID 획득 실패로 정책 '{policy_name}' 건너뜁니다.")
