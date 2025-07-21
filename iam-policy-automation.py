@@ -3,12 +3,6 @@ import json
 import os
 import csv
 
-# Prisma Cloud의 search/history API 대신 /iam/api/v3/search/permission API를 사용하여 새로운 Saved Search를 만들고 이를 정책에 연결하도록 코드를 수정해 드리겠습니다.
-#/iam/api/v3/search/permission API 문서를 확인한 결과, 이 API는 RQL 쿼리를 사용하여 IAM 권한을 검색하는 동시에, 요청 본문에 id 필드를 제공하지 않으면 자동으로 새로운 Saved Search를 생성하는 기능을 포함하고 있습니다. 이 Saved Search의 ID는 API 응답의 id 필드 (Message id)로 반환됩니다. 이 ID를 정책 생성에 활용할 수 있습니다.
-#따라서 기존 get_search_id 함수를 수정하여 /iam/api/v3/search/permission을 호출하고, 그 응답에서 반환되는 ID를 Saved Search ID로 사용합니다. 별도의 save_search 함수는 필요 없게 됩니다.
-#또한, IAM 권한 관련 정책이므로 add_policy 함수의 policyType과 rule.type을 "IAM"으로 변경했습니다.
-
-
 
 # --- Configuration ---
 PRISMA_CLOUD_API_URL = os.environ.get("PRISMA_CLOUD_API_URL", "https://api.sg.prismacloud.io") # Your Prisma Cloud API URL
@@ -21,7 +15,7 @@ POLICY_CSV_FILE = "policy_20250718 - IAM.csv" # The name of your CSV file
 # --- API Endpoints ---
 LOGIN_URL = f"{PRISMA_CLOUD_API_URL}/login"
 # New API endpoint for IAM permission searches that can also create saved searches
-SEARCH_PERMISSION_API_URL = f"{PRISMA_CLOUD_API_URL}/iam/api/v3/search/permission"
+SEARCH_PERMISSION_API_URL = f"{PRISMA_CLOUD_API_URL}/iam/api/v3/search/permission" #https://pan.dev/prisma-cloud/api/cspm/search-permissions-v-3/
 ADD_POLICY_URL = f"{PRISMA_CLOUD_API_URL}/policy"
 
 def get_jwt_token(access_key, secret_key):
