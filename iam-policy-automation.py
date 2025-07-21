@@ -13,10 +13,10 @@ import csv
 # --- Configuration ---
 PRISMA_CLOUD_API_URL = os.environ.get("PRISMA_CLOUD_API_URL", "https://api.sg.prismacloud.io") # Your Prisma Cloud API URL
 # SECURITY NOTE: In a real environment, load keys from environment variables or a secure vault.
-ACCESS_KEY = os.environ.get("PRISMA_CLOUD_ACCESS_KEY", "653cb16e-a95c-44db-8942-377272850170") # Your Prisma Cloud Access Key
-SECRET_KEY = os.environ.get("PRISMA_CLOUD_SECRET_KEY", "KZIPjuJg1AuctgDlKGay4DSMaBg=") # Your Prisma Cloud Secret Key
+ACCESS_KEY = os.environ.get("PRISMA_CLOUD_ACCESS_KEY", "") # Your Prisma Cloud Access Key
+SECRET_KEY = os.environ.get("PRISMA_CLOUD_SECRET_KEY", "") # Your Prisma Cloud Secret Key
 
-POLICY_CSV_FILE = "policy_20250718 - Copy of Sheet1.csv" # The name of your CSV file
+POLICY_CSV_FILE = "policy_20250718 - IAM.csv" # The name of your CSV file
 
 # --- API Endpoints ---
 LOGIN_URL = f"{PRISMA_CLOUD_API_URL}/login"
@@ -121,28 +121,28 @@ def process_policy_from_csv(jwt_token, policy_data):
     """
     rql_query = policy_data['RQL_QUERY']
     policy_name = policy_data['POLICY_NAME']
-    policy_description = policy_data.get('POLICY_NAME.1', '') # CSV의 POLICY_NAME.1 컬럼을 설명으로 사용
+    policy_description = policy_data.get('POLICY_DESCRIPTION', '') 
     policy_severity = policy_data['POLICY_SEVERITY']
 
     labels_str = policy_data.get('POLICY_LABELS', '')
     policy_labels = [label.strip() for label in labels_str.split(',') if label.strip()]
 
     policy_cloud_type = policy_data['POLICY_CLOUD_TYPE']
-    saved_search_name = policy_data.get('SAVED_SEARCH_NAME', policy_name + " Query")
-    saved_search_description = policy_data.get('SAVED_SEARCH_DESCRIPTION', policy_description)
+    # saved_search_name = policy_data.get('SAVED_SEARCH_NAME', policy_name + " Query")
+    # saved_search_description = policy_data.get('SAVED_SEARCH_DESCRIPTION', policy_description)
 
     print(f"\n--- 정책 처리 중: '{policy_name}' ---")
 
     # 1. IAM Permission Search를 실행하고 Saved Search ID를 획득 (새 Saved Search가 생성됨)
-    search_id = create_and_get_saved_search_id_iam(jwt_token, rql_query, saved_search_name, saved_search_description, policy_cloud_type)
+    # search_id = create_and_get_saved_search_id_iam(jwt_token, rql_query, saved_search_name, saved_search_description, policy_cloud_type)
+    # if not search_id:
+    #     print(f"  Search ID 획득 실패로 정책 '{policy_name}' 건너뜁니다.")
+    #     return False
+    search_id = create_and_get_saved_search_id_iam(jwt_token, rql_query, policy_name, policy_description, policy_cloud_type)
     if not search_id:
         print(f"  Search ID 획득 실패로 정책 '{policy_name}' 건너뜁니다.")
         return False
-    
-    # NOTE: /iam/api/v3/search/permission API가 'name'과 'description'을
-    # 직접적으로 새로운 saved search의 메타데이터로 설정하는 기능이 불확실합니다.
-    # 만약 이름과 설명이 제대로 설정되지 않으면, 별도의 API 호출이 필요할 수 있습니다.
-    # 현재 가정은 이 API가 이름과 설명을 사용하여 saved search를 생성한다는 것입니다.
+  
 
     # 2. Saved Search ID를 사용하여 정책 추가
     added_policy = add_policy(
