@@ -13,8 +13,8 @@ import csv
 # --- Configuration ---
 PRISMA_CLOUD_API_URL = os.environ.get("PRISMA_CLOUD_API_URL", "https://api.sg.prismacloud.io") # Your Prisma Cloud API URL
 # SECURITY NOTE: In a real environment, load keys from environment variables or a secure vault.
-ACCESS_KEY = os.environ.get("PRISMA_CLOUD_ACCESS_KEY", "") # Your Prisma Cloud Access Key
-SECRET_KEY = os.environ.get("PRISMA_CLOUD_SECRET_KEY", "") # Your Prisma Cloud Secret Key
+ACCESS_KEY = os.environ.get("PRISMA_CLOUD_ACCESS_KEY", "653cb16e-a95c-44db-8942-377272850170") # Your Prisma Cloud Access Key
+SECRET_KEY = os.environ.get("PRISMA_CLOUD_SECRET_KEY", "KZIPjuJg1AuctgDlKGay4DSMaBg=") # Your Prisma Cloud Secret Key
 
 POLICY_CSV_FILE = "policy_20250718 - Copy of Sheet1.csv" # The name of your CSV file
 
@@ -56,29 +56,6 @@ def create_and_get_saved_search_id_iam(jwt_token, rql_query, name, description, 
     }
     payload = {
         "query": rql_query,
-        # 'id' 필드를 제공하지 않으면 새 Saved Search가 생성됩니다.
-        # 'name', 'description' 필드는 이 API의 직접적인 입력 파라미터가 아닐 수 있습니다.
-        # 문서에 따르면 이 API는 'saved search id'를 'optional'로 받아들이므로,
-        # 이 필드를 비워두면 새 검색이 생성되고 'id'는 결과로 반환됩니다.
-        # 'name'과 'description'은 'search/history/:id' API를 통해 저장할 때 사용됩니다.
-        # 그러나 여기서는 'id'를 비워두고 'name'과 'description'을 포함하여
-        # 이 API가 내부적으로 saved search를 생성할 때 해당 메타데이터를 사용하도록 시도합니다.
-        # 실제 Prisma Cloud API의 동작에 따라 이 부분이 다르게 해석될 수 있으니,
-        # 문제가 발생하면 Saved Search Name/Description은 add_policy 시에만 사용하거나,
-        # 별도의 update API를 사용해야 할 수 있습니다. (그러나 문서에는 명시적으로 없음)
-        # 테스트 결과, /iam/api/v3/search/permission은 'saved search id'를 반환하며,
-        # 이는 기존 saved search를 사용하여 검색 결과를 다시 가져올 때 사용하는 것으로 보입니다.
-        # 새로운 saved search를 이름과 함께 생성하려면 여전히 /search/history/:id 를 사용해야 할 가능성이 높습니다.
-        # 다시 확인해 보니, "If not provided, a new saved search will be created."는
-        # 'id' 필드가 없을 경우, 이 쿼리에 대한 '최근 검색'이 생성되고 그 ID가 반환된다는 의미로 해석됩니다.
-        # 즉, '명시적으로 이름 붙여진 Saved Search'를 생성하는 기능은 /search/history/:id 에 있습니다.
-        # 따라서, Saved Search를 만들기 위해서는 여전히 두 단계를 거쳐야 합니다.
-        # 1. /search/api/v2/config (or /iam/api/v3/search/permission for IAM context)로 search_id 획득 (recent search)
-        # 2. /search/history/:id 로 recent search를 named saved search로 변환
-        #
-        # 그러나 사용자 요청은 "/iam/api/v3/search/permission API 를 사용해서 새로운 saved search 를 만드는 방식으로 코드를 다시 짜 줘." 이므로
-        # 이 API가 'name'과 'description'을 받아 Saved Search를 직접 생성할 수 있다고 가정하고 진행합니다.
-        # (실제 API 동작에 따라서는 'name', 'description'이 무시되거나 에러를 유발할 수 있습니다.)
         "name": name,          # Attempt to pass name for saved search creation
         "description": description # Attempt to pass description for saved search creation
     }
@@ -86,7 +63,6 @@ def create_and_get_saved_search_id_iam(jwt_token, rql_query, name, description, 
         print(f"  RQL에 대한 Saved Search ID를 가져오는 중 (IAM Permission API): {rql_query[:80]}...")
         response = requests.post(SEARCH_PERMISSION_API_URL, headers=headers, json=payload)
         response.raise_for_status()
-        # API 응답에서 'id'는 'Message id'로 되어 있으나, 이것이 saved search의 ID로 사용될 것으로 가정합니다.
         search_id = response.json().get("id")
         if not search_id:
             raise ValueError("IAM Permission Search 응답에서 Search ID를 찾을 수 없습니다.")
